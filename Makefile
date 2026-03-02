@@ -1,5 +1,5 @@
 BIN = build/engine
-SRC = source/engine/engine_entry.c
+SRC = source/engine/engine.c
 CC = clang
 CFLAGS = -Wall -Wextra -Wfloat-equal -Wswitch-default -Wswitch-enum \
          -Wno-unused-parameter -Wno-implicit-fallthrough -Wno-unused-function -g -Werror

@@ -20,11 +20,8 @@
 
 #ifdef BASE_UNITY
 
-#include "base_mem.c"
 #include "base_arena.c"
 #include "base_stack.c"
-#include "base_test.c"
-#include "base_string.c"
 
 #endif
 #endif
