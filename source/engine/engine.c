@@ -10,25 +10,32 @@
 #include "../repl/repl.h"
 #include "../repl/repl.c"
 
+#include "../storage/csv_reader.h"
+#include "../storage/csv_reader.c"
+
+#if 1
+#include <stdio.h>
+#endif
+
+
 int main(int c, char **v)
 {
-    mem_arena *global_arena = arena_create(MiB(1));
+    if(c < 2) return -999;
 
-    unused(c);
-    unused(v);
-
-    string8 buffer = PushString(global_arena, 5);
-    unused(buffer);
+    string8 buffer = load_file(v[1]);
+    read_csv(buffer);
 
 
-    for (;;)
-    {
-        print("reading user input...");
-        // TODO(nasr): design a repl system
+    // for(;;)
+    // {
+    //     print("reading user input...");
+    //     // TODO(nasr): design a repl system
+    //
+    //     sleep(1);
+    // }
+    //
 
-        sleep(1);
-    }
-
+    return 0;
 }
 
 

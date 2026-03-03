@@ -14,39 +14,24 @@ load_file(const char *path)
 {
     string8 result = {0};
     struct stat sbuf = {0};
-    int err = 0;
+
     i32 file = open(path, O_RDONLY);
+    if(file == -1) return result;
 
-    if(file)
+    if(fstat(file, &sbuf) == -1)
     {
-
-        if(file != -1)
-        {
-            err = fstat(file, &sbuf);
-            check(err != -1);
-
-            result.size = (u64)sbuf.st_size;
-
-            if(result.size !=  0)
-            {
-                result.data = (u8 *)mmap(0,
-                                         result.size,
-                                         PROT_READ,
-                                         MAP_PRIVATE,
-                                         file,
-                                         0);
-
-                check(result.data != MAP_FAILED);
-            }
-
-            close(file);
-        }
-        else
-        {
-           // TODO(nasr): logging
-        }
-
+        print("error: fstat failed");
+        close(file);
+        return result;
     }
+
+    result.size = (u64)sbuf.st_size;
+    if(result.size != 0)
+    {
+        result.data = (u8 *)mmap(0, result.size, PROT_READ, MAP_PRIVATE, file, 0);
+    }
+
+    close(file);
     return result;
 }
 

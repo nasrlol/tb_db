@@ -9,6 +9,10 @@
  #define PushString(arena, size) \
     (string8){ (u8 *)PushArray((arena), u8, (size)), (u64)(size) }
 
+#define StringFmt "%.*s"
+#define ULongFmt  "%lu"
+#define ULLongFmt "%llu"
+
 typedef struct string8 string8;
 struct string8
 {
