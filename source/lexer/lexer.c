@@ -1,8 +1,10 @@
 internal token *
-tokenize(string8 buffer)
+tokenize_csv(string8 buffer)
 {
-
-    // TODO(nasr): tokenize the user input
+    if(buffer.size < 0) return NULL;
+    for(i32 index = 0;
+         buffer.data[index] != '\0'
+         ;)
 
     return NULL;
 }
