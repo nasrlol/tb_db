@@ -1,0 +1,12 @@
+ https://www.geeksforgeeks.org/dsa/introduction-of-b-tree-2/
+ github.com/tsoding/sv/blob/master/sv.h
+ https://github.com/semitrivial/csv_parser
+
+ Introduction to Algorithms, Fourth Edition
+ ISBN-10 : 026204630X
+ ISBN-13  : 978-0262046305
+
+ chapter 18: B-Trees
+
+
+ https://github.com/tidwall/btree.c/blob/master/btree.c
