@@ -1,6 +1,8 @@
 #define BASE_UNITY
 #include "../base/base_include.h"
 
+#include <stdio.h>
+
 #include "../lexer/lexer.h"
 #include "../lexer/lexer.c"
 
@@ -13,17 +15,14 @@
 #include "../storage/csv_reader.h"
 #include "../storage/csv_reader.c"
 
-#if 1
-#include <stdio.h>
-#endif
-
 
 int main(int c, char **v)
 {
     if(c < 2) return -999;
 
     string8 buffer = load_file(v[1]);
-    read_csv(buffer);
+    // read_csv(buffer);
+    tokenize_csv(buffer);
 
 
     // for(;;)

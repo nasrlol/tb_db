@@ -23,8 +23,8 @@ struct csv_table
 read_only global_variable
 csv_row  nil_csv_row =
 {
-    .fields = {NULL,  0},
-    .count = 0,
+    .fields     = &nil_string,
+    .count      = 0,
 };
 
 
@@ -32,8 +32,8 @@ csv_row  nil_csv_row =
 read_only global_variable
 csv_table nil_csv_table =
 {
-    .string8     = {NULL, 0},
-    .csv_row     = &nil_csv_row,
+    .headers     = &nil_string,
+    .rows        = &nil_csv_row,
     .col_count   = 0,
     .row_count   = 0,
 };
