@@ -3,8 +3,7 @@
 
 #include <stdio.h>
 
-#include "../lexer/lexer.h"
-#include "../lexer/lexer.c"
+
 
 #include "../parser/parser.h"
 #include "../parser/parser.c"
@@ -15,24 +14,22 @@
 #include "../storage/csv_reader.h"
 #include "../storage/csv_reader.c"
 
+#include "../lexer/lexer.h"
+#include "../lexer/lexer.c"
+
+
 
 int main(int c, char **v)
 {
     if(c < 2) return -999;
 
+    mem_arena *global_arena = arena_create(MiB(20));
+    csv_table *global_table = PushStruct(global_arena, csv_table);
+
     string8 buffer = load_file(v[1]);
-    // read_csv(buffer);
-    tokenize_csv(buffer);
+    read_csv(buffer);
+    tokenize_csv(buffer, global_table, global_arena);
 
-
-    // for(;;)
-    // {
-    //     print("reading user input...");
-    //     // TODO(nasr): design a repl system
-    //
-    //     sleep(1);
-    // }
-    //
 
     return 0;
 }

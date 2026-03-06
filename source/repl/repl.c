@@ -1,16 +1,12 @@
-#ifndef ENGINE_REPL_H
-#define ENGINE_REPL_H
-
-typedef struct node node;
-struct node
+internal void
+init_repl()
 {
+    for(;;)
+    {
+        print("reading user input...");
+        // TODO(nasr): design a repl system
 
-};
+        sleep(1);
+    }
 
-typedef struct btree btree;
-struct btree
-{
-
-};
-
-#endif /* ENGINE_H */
+}
