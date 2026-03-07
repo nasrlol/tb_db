@@ -33,7 +33,7 @@ arena_destroy(mem_arena *arena)
     munmap(arena, arena->capacity + sizeof(mem_arena));
 }
 internal void *
-arena_alloc(mem_arena *arena, u64 size)
+arena_alloc(mem_arena *arena, u64 size, b32 zero)
 {
     if (!arena)
     {
@@ -51,7 +51,7 @@ arena_alloc(mem_arena *arena, u64 size)
     arena->previous_position = arena->current_position;
     arena->current_position  = aligned + size;
 
-    MemSet(out, size);
+    if (zero) MemSet(out, size);
 
     return out;
 }
@@ -88,7 +88,7 @@ arena_resize_align(mem_arena *arena, void *old_memory, u64 new_size, u64 old_siz
 
     if (old_memory == NULL || old_size == 0)
     {
-        return (mem_arena *)arena_alloc(arena, new_size);
+        return (mem_arena *)arena_alloc(arena, new_size, 0);
     }
     else if ((old_mem >= arena->base_position && old_mem < arena->base_position + arena->capacity))
     {
@@ -103,7 +103,7 @@ arena_resize_align(mem_arena *arena, void *old_memory, u64 new_size, u64 old_siz
         }
         else
         {
-            void *new_memory = arena_alloc(arena, new_size);
+            void *new_memory = arena_alloc(arena, new_size, 0);
             umm   copy_size  = old_size < new_size ? old_size : new_size;
             memmove(new_memory, old_mem, copy_size);
         }
