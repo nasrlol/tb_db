@@ -23,11 +23,11 @@ int main(int c, char **v)
 {
     if(c < 2) return -999;
 
-    mem_arena *global_arena = arena_create(MiB(20));
+    mem_arena *global_arena = arena_create(MiB(30));
     csv_table *global_table = PushStruct(global_arena, csv_table);
 
     string8 buffer = load_file(v[1]);
-    read_csv(buffer);
+    // read_csv(buffer);
     tokenize_csv(buffer, global_table, global_arena);
 
 
