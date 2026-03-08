@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -16,6 +17,7 @@
 #include "base_stack.h"
 #include "base_test.h"
 #include "base_string.h"
+#include "base_io.h"
 #include "base_os.h"
 
 #ifdef BASE_UNITY

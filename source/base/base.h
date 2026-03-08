@@ -52,22 +52,22 @@ typedef uint32_t u32;
 typedef uint16_t u16;
 typedef uint8_t  u8;
 
-typedef int8_t  i8;
-typedef int16_t i16;
-typedef int32_t i32;
-typedef int64_t i64;
+typedef int8_t  s8;
+typedef int16_t s16;
+typedef int32_t s32;
+typedef int64_t s64;
 
 typedef float  f32;
 typedef double f64;
 
-typedef i32 b32;
-typedef i16 b16;
+typedef s32 b32;
+typedef s16 b16;
 typedef u8  b8;
 
 typedef uintptr_t umm;
 typedef intptr_t  smm;
 
-#define TRUE (0 == 0)
-#define FALSE (0 != 0)
+#define TRUE (1 == 1)
+#define FALSE (1 != 1)
 
 #endif

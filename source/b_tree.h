@@ -21,9 +21,9 @@ struct  b_tree_node
 
     // NOTE(nasr): reference count ::: check how many leaves are using this node
     // also not needed for now because we don't free individual node because of arena allocator
-    // i32 *refc;
+    // s32 *refc;
 
-    i32 key_count;
+    s32 key_count;
 
     b32 leaf;
 

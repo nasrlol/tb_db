@@ -9,7 +9,7 @@
 #define LEN(s) (sizeof(s) - 1)
 
 internal void
-write_int(i32 num)
+write_int(s32 num)
 {
 
     if (num < 0)

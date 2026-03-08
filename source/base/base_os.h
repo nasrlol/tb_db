@@ -1,21 +1,13 @@
 #ifndef BASE_OS_H
 #define BASE_OS_H
 
-internal void
-print(const char *str)
-{
-    i32 len = 0;
-    while (str[len]) len++;
-    write(STDOUT_FILENO, str, len);
-}
-
 internal string8
 load_file(const char *path)
 {
     string8 result = {0};
     struct stat sbuf = {0};
 
-    i32 file = open(path, O_RDONLY);
+    s32 file = open(path, O_RDONLY);
     if(file == -1) return result;
 
     if(fstat(file, &sbuf) == -1)

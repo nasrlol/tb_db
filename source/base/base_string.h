@@ -1,13 +1,18 @@
 #ifndef BASE_STRING_H
 #define BASE_STRING_H
 
-#include <string.h>
-
 #define StringLit(string) \
     (string8){ .data = (u8 *)(string), .size = (sizeof(string) - 1) }
 
- #define PushString(arena, size) \
-    (string8){ (u8 *)PushArray((arena), u8, (size)), (u64)(size) }
+#define PushString(arena, size) \
+    ({ \
+        string8 *result = PushStruct((arena), string8); \
+        result->data = PushArray((arena), u8, (size)); \
+        result->size = (u64)(size); \
+        result; \
+    })
+
+#define String8Cast(literal, literal_count) ( string8 ){( u8 * )( literal ),( u64 )( literal_count ) } 
 
 #define StringFmt "%.*s"
 #define ULongFmt  "%lu"
@@ -50,10 +55,8 @@ string8_append_char(string8 *buf, u8 c)
 read_only global_variable
 string8 nil_string =
 {
-
     .data = NULL,
     .size = 0,
-
 };
 
 #endif /* BASE_STRING_H */

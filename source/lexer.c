@@ -32,19 +32,20 @@ is_delimiter(u8 point)
 }
 
 internal token *
-tokenize_csv(string8 buffer, csv_table *global_table, mem_arena *arena)
+tokenize_csv(string8 buffer, mem_arena *arena)
 {
-    i32 count = 0;
-    string8 **tokens = PushArray(arena, string8 *, buffer.size / 10);
-    b32 first_line = 1;
+    s32 count = 0;
+    string8 **tokens = PushString(arena, buffer.size);
+
+    b32 FL = TRUE;
 
     if(buffer.size < 0) return NULL;
-    for(i32 index = 0;
+    for(s32 index = 0;
         buffer.data[index] != '\0';
         ++index)
     {
         csv_row *row = PushStruct(arena, csv_row);
-        string8 token = {0};
+        token *tok = PushStruct(arena, token);
 
         u8 point = buffer.data[index];
 
@@ -53,28 +54,25 @@ tokenize_csv(string8 buffer, csv_table *global_table, mem_arena *arena)
 
         unused(row);
 
-        switch (point)
+        switch(point)
         {
-            case '\n':
+            case('\n'):
                 {
-                    first_line = -1;
+
+                    if(FL)
+                    {
+                        FL = FALSE;
+                        tok->flags |= END_FL;
+                    }
+
                     break;
+
                 }
-            case ',':
+
+            case(','):
                 {
                     end = start - 1;
-
-                    if (first_line)
-                    {
-                        global_table->headers = &token;
-                        ++global_table->headers;
-                        break;
-                    }
-                    else
-                    {
-
-                        break;
-                    }
+                    break;
                 }
 
             default:
@@ -85,16 +83,12 @@ tokenize_csv(string8 buffer, csv_table *global_table, mem_arena *arena)
                 }
         }
 
-        token = (string8){
-            .data = start,
-            .size = end - start,
-        };
+        token->lexeme = String8Cast(start, end - start);
 
-        **tokens = token;
-        ++*tokens;
+        *tokens = token;
+        ++tokens;
+
+
+        return NULL;
     }
-
-    printf("%d", count);
-
-    return NULL;
 }

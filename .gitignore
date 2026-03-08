@@ -9,3 +9,4 @@ idea/*
 /helper.sh
 /tests
 /tags
+/.cache/clangd/index
