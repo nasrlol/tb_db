@@ -16,7 +16,6 @@ enum token_type
     TOKEN_UNDEFINED = 255,
     TOKEN_IDENTIFIER,
     TOKEN_VALUE,
-
 };
 
 typedef struct token token;
@@ -25,8 +24,7 @@ struct token
     string8 lexeme;
     token_type type;
     token_flags flags;
+    token *next;
 };
-
-
 
 #endif /* ENGINE_LEXER_H */

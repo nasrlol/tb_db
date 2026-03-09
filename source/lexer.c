@@ -34,61 +34,47 @@ is_delimiter(u8 point)
 internal token *
 tokenize_csv(string8 buffer, mem_arena *arena)
 {
-    s32 count = 0;
-    string8 **tokens = PushString(arena, buffer.size);
 
     b32 FL = TRUE;
 
     if(buffer.size < 0) return NULL;
-    for(s32 index = 0;
-        buffer.data[index] != '\0';
-        ++index)
+    for(s32 index = 0; buffer.data[index] != '\0'; ++index)
     {
-        csv_row *row = PushStruct(arena, csv_row);
         token *tok = PushStruct(arena, token);
-
         u8 point = buffer.data[index];
 
-        u8 *start = buffer.data;
-        u8 *end = NULL;
+        s32 start   = 0;
+        s32 end     = 0;
 
-        unused(row);
+        if(is_whitespace(point))
+        {
+            print("csv file is invalid");
+            return NULL;
+        }
 
         switch(point)
         {
             case('\n'):
                 {
-
-                    if(FL)
-                    {
-                        FL = FALSE;
-                        tok->flags |= END_FL;
-                    }
-
+                    if(FL) tok->flags |= END_FL;
                     break;
-
                 }
 
             case(','):
                 {
-                    end = start - 1;
+                    end = index - 1;
+                    start = index + 1;
                     break;
                 }
-
             default:
                 {
-                    printf("point: %c\n", point);
-                    count++;
                     break;
                 }
         }
 
-        token->lexeme = String8Cast(start, end - start);
-
-        *tokens = token;
-        ++tokens;
-
-
-        return NULL;
+        tok->lexeme = String8Cast(&buffer.data[start], end - start);
+        tok->next = tok;
     }
+
+    return NULL;
 }

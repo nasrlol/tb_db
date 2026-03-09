@@ -13,7 +13,7 @@ int main(int c, char **v)
 {
     if(c < 2) return -999;
 
-    b32 running = 0;
+    local_persist b32 running = 1;
 
     mem_arena *global_arena = arena_create(MiB(30));
     csv_table *global_table = PushStruct(global_arena, csv_table);

@@ -22,11 +22,5 @@ internal csv_table *
 parse_csv(token *tokens, csv_table *table)
 {
 
-
-
-
-
-
-
     return NULL;
 }
