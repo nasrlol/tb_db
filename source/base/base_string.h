@@ -12,7 +12,8 @@
         result; \
     })
 
-#define String8Cast(literal, literal_count) ( string8 ){( u8 * )( literal ),( u64 )( literal_count ) } 
+#define StringCast(data, size) (string8){(u8 *)(data), (u64)(size) } 
+#define StringPCast(data, size) (string8 *){(u8 *)(data), (u64)(size) } 
 
 #define StringFmt "%.*s"
 #define ULongFmt  "%lu"
