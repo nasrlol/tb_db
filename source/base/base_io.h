@@ -32,7 +32,4 @@ print(const char *str)
 
 }
 
-#define Os_read(buffer, buffer_count) 
-
-
 #endif /* BASE_IO_H */
