@@ -63,14 +63,20 @@ query_tokenizer(mem_arena *arena, string8 *buffer)
             end = index; 
         }
 
-        s32 new_token_size = end - start;
+        // save the token
+        // TODO(nasr): work on the string macros cuz no work
+        {
 
-        tok->lexeme->data = &buffer->data[index]; 
-        tok->lexeme->size = new_token_size;
+            s32 new_token_size = end - start;
 
-        tok->next = tok;
-        start = index + 1;
+            tok->lexeme->data = &buffer->data[index]; 
+            tok->lexeme->size = new_token_size;
 
+            tok->next = tok;
+            start = index + 1;
+
+
+        }
     }
 
     return tok;
@@ -91,7 +97,7 @@ int main(int c, char **v)
 
     string8 buffer = load_file(v[1]);
 
-    print("database engine in nasr");
+    print("\nDatabase Engine\n");
 
     for(;;)
     {
@@ -99,22 +105,14 @@ int main(int c, char **v)
         {
             {
                 u8 line_buffer[256] = {};
-                s64 codepoint = os_read(STDIN_FD, line_buffer, 256);
-                unused(codepoint);
-                for(s32 index = 0; index < 256; ++index)
+                s32 err = os_read(STDIN_FD, line_buffer, 256);
+                if(err < 0)
                 {
-                    if(line_buffer[index] == '\n')
-                    {
-                        print("exiting");
-                        return 0;
-                    }
-                    else if(line_buffer[index] == ' ')
-                    {
-
-                        print("TODO(nasr): ");
-                    }
-
+                    print("error reading from stdin");
                 }
+
+                query_tokenizer(global_arena, &StringLit(line_buffer));
+
             }
 
             {
