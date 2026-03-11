@@ -1,3 +1,4 @@
+#define B_TREE_IMPLEMENTATION
 #define BASE_UNITY
 #include "base/base_include.h"
 
@@ -29,10 +30,12 @@ internal b32
 is_delimiter(u8 point)
 {
     return (point == ',');
+
 }
 
+
+#include "b_tree.h"
 #include "csv_reader.h"
-// #include "btree.h"
 
 typedef struct query_token query_token;
 struct query_token
@@ -74,8 +77,6 @@ query_tokenizer(mem_arena *arena, string8 *buffer)
 
             tok->next = tok;
             start = index + 1;
-
-
         }
     }
 
@@ -84,6 +85,7 @@ query_tokenizer(mem_arena *arena, string8 *buffer)
 
 int main(int c, char **v)
 {
+
     if(c < 2)
     { 
         print("bad file, setting default file\n");
@@ -104,14 +106,14 @@ int main(int c, char **v)
         if (running)
         {
             {
-                u8 line_buffer[256] = {};
-                s32 err = os_read(STDIN_FD, line_buffer, 256);
+                u8 lbuf[256] = {};
+                s32 err = os_read(STDIN_FD, lbuf, 256);
                 if(err < 0)
                 {
                     print("error reading from stdin");
                 }
 
-                query_tokenizer(global_arena, &StringLit(line_buffer));
+                query_tokenizer(global_arena, &StringLit(lbuf));
 
             }
 

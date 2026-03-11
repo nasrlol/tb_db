@@ -63,6 +63,9 @@ csv_table nil_csv_table =
 };
 
 
+
+#endif /* ENGINE_LEXER_H */
+
 // the lexer acts as a table builder from a csv  file
 // and parsing indivudal rows and columns
 // the next step would be building a the b-tree
@@ -115,31 +118,24 @@ tokenize_csv(string8 buffer, mem_arena *arena)
 }
 
 internal void
-strip_new_line(string8 buffer)
-{
-
-    for (u64 index = 0; index < buffer.size; index++)
-	{
-
-	}
-
-    return;
-
-}
-
-internal void
 read_csv(string8 buffer)
 {
     // printf("\nsize:%lu\ndata %s\n", buffer.size, buffer.data);
 
 }
 
-internal csv_table *
-parse_csv(token *tokens, csv_table *table)
+internal b_tree  *
+parse_csv(csv_token *tok, csv_table *table)
 {
+
+
+    for (;tok->next; tok = tok->next)
+    {
+        b_tree_node *current_btree_node = btree_node_alloc;
+
+        
+    }
 
     return NULL;
 }
 
-
-#endif /* ENGINE_LEXER_H */
