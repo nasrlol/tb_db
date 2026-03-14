@@ -40,7 +40,7 @@ is_delimiter(u8 point)
 typedef struct query_token query_token;
 struct query_token
 {
-    string8      *lexeme;
+    string8      lexeme;
     query_token  *next;
 };
 
@@ -72,8 +72,9 @@ query_tokenizer(mem_arena *arena, string8 *buffer)
 
             s32 new_token_size = end - start;
 
-            tok->lexeme->data = &buffer->data[index]; 
-            tok->lexeme->size = new_token_size;
+            tok->lexeme = PushString(arena, new_token_size);
+            tok->lexeme.data = &buffer->data[index]; 
+            tok->lexeme.size = new_token_size;
 
             tok->next = tok;
             start = index + 1;
@@ -83,21 +84,18 @@ query_tokenizer(mem_arena *arena, string8 *buffer)
     return tok;
 }
 
-int main(int c, char **v)
+int main(int count, char **value)
 {
-
-    if(c < 2)
-    { 
-        print("bad file, setting default file\n");
-    }
-    else v[1] =  "./test/customers-10000.csv";
+    if(count < 2) value[1] =  "./test/data.csv";
 
     local_persist b32 running = 1;
 
     mem_arena *global_arena = arena_create(MiB(30));
-    csv_table *global_table = PushStruct(global_arena, csv_table);
 
-    string8 buffer = load_file(v[1]);
+    // NOTE(nasr): see note down below
+    // csv_table *global_table = PushStruct(global_arena, csv_table);
+
+    string8 buffer = load_file(global_arena, value[1]);
 
     print("\nDatabase Engine\n");
 
@@ -106,22 +104,40 @@ int main(int c, char **v)
         if (running)
         {
             {
-                u8 lbuf[256] = {};
+                u8 *lbuf = PushArray(global_arena, u8, 256);
                 s32 err = os_read(STDIN_FD, lbuf, 256);
+
                 if(err < 0)
                 {
                     print("error reading from stdin");
                 }
 
-                query_tokenizer(global_arena, &StringLit(lbuf));
+                // TODO(nasr): extract this later in the future and make a string copy function/macro
+                // @params (s32 lbuf_size , string8 lbuf_stringified)
+                s32 lbuf_size             = sizeof(lbuf) - 1;
+                string8 lbuf_stringified  = PushString(global_arena, lbuf_size);
+                {
+                    memcpy(lbuf_stringified.data, lbuf, lbuf_size);
+                    lbuf_stringified.size  = sizeof(lbuf) - 1;
+                }
 
+                query_tokenizer(global_arena, &lbuf_stringified);
             }
 
             {
                 read_csv(buffer);
                 token *tokens = tokenize_csv(buffer, global_arena);
-                global_table = parse_csv(tokens, global_table);
+
+                assert_msg(tokens != NULL, "Tokens are NULL.");
+
+                b_tree *bt = parse_csv(global_arena, tokens);
+                b_tree_write(bt);
             }
+
+
+            // NOTE(nasr): not sure on how to approach the b-tree and the  table format thing
+            // we kind of want our table format i think? but i wouldnt be sure about the use case
+            // so we stick to the regular b_tree for now. commenting out the tables.
 
             sleep(1);
         }

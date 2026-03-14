@@ -8,7 +8,6 @@ enum token_flags
     END_FL      = 1 << 2,
 };
 
-
 typedef enum token_type token_type;
 enum token_type
 {
@@ -27,6 +26,7 @@ struct token
     token *next;
 };
 
+// NOTE(nasr): i dont think im going to use this.
 typedef struct csv_row csv_row;
 struct csv_row
 {
@@ -62,8 +62,6 @@ csv_table nil_csv_table =
     .row_count   = 0,
 };
 
-
-
 #endif /* ENGINE_LEXER_H */
 
 // the lexer acts as a table builder from a csv  file
@@ -72,13 +70,16 @@ csv_table nil_csv_table =
 internal token *
 tokenize_csv(string8 buffer, mem_arena *arena)
 {
-
     b32 FL = TRUE;
 
     if(buffer.size < 0) return NULL;
+
+    token *tok = PushStruct(arena, token);
+
+    // URGENT(nasr): segfaulting because memcpy of strring value doesnt  work dammit
+    // NOPE ITS BEECAUSE WEE DONT LOAD CSV OR SOMTHING???
     for(s32 index = 0; buffer.data[index] != '\0'; ++index)
     {
-        token *tok = PushStruct(arena, token);
         u8 point = buffer.data[index];
 
         s32 start   = 0;
@@ -86,35 +87,35 @@ tokenize_csv(string8 buffer, mem_arena *arena)
 
         if(is_whitespace(point))
         {
-            print("csv file is invalid");
+            warn("csv file is invalid, detected whitespace");
             return NULL;
         }
 
         switch(point)
         {
             case('\n'):
-                {
-                    if(FL) tok->flags |= END_FL;
-                    break;
-                }
+            {
+                if(FL) tok->flags |= END_FL;
+                break;
+            }
 
             case(','):
-                {
-                    end = index - 1;
-                    start = index + 1;
-                    break;
-                }
+            {
+                end = index - 1;
+                start = index + 1;
+                break;
+            }
             default:
-                {
-                    break;
-                }
+            {
+                break;
+            }
         }
 
         tok->lexeme = StringCast(&buffer.data[start], end - start);
         tok->next = tok;
     }
 
-    return NULL;
+    return tok;
 }
 
 internal void
@@ -124,18 +125,24 @@ read_csv(string8 buffer)
 
 }
 
-internal b_tree  *
-parse_csv(csv_token *tok, csv_table *table)
+internal b_tree *
+parse_csv(mem_arena *arena, token *tok)
 {
+    b_tree *tree = PushStructZero(arena, b_tree);
+    b_tree_create(arena, tree);
 
-
-    for (;tok->next; tok = tok->next)
+    for (; tok != NULL; tok = tok->next)
     {
-        b_tree_node *current_btree_node = btree_node_alloc;
+        // skip structural tokens, only index values
+        if (tok->type != TOKEN_VALUE)
+        {
+            continue;
+        }
 
-        
+        // NOTE(nasr): payload is the token itself so the caller can reach
+        // row/col metadata without us having to copy it
+        b_tree_insert(arena, tree, tok->lexeme, (void *)tok);
     }
 
-    return NULL;
+    return tree;
 }
-
