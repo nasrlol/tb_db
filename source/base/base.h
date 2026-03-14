@@ -70,4 +70,12 @@ typedef intptr_t  smm;
 #define TRUE (1 == 1)
 #define FALSE (1 != 1)
 
+#define RED "\x1b[31m"
+#define GREEN "\x1b[32m"
+#define RESET "\x1b[0m"
+#define BLUE "\x1b[34m"
+#define YELLOW "\x1b[33m"
+
+#define LEN(s) (sizeof(s) - 1)
+
 #endif

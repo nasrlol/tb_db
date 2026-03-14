@@ -2,20 +2,27 @@
 #define BASE_OS_H
 
 internal string8
-load_file(const char *path)
+load_file(mem_arena *arena, const char *path)
 {
     string8 result = {0};
     struct stat sbuf = {0};
 
     s32 file = open(path, O_RDONLY);
-    if(file == -1) return result;
+    if(file == -1)
+    {
+        warn("fialed to open file. path could be invalid");
+        return (string8){0};
+    }
 
     if(fstat(file, &sbuf) == -1)
     {
-        print("error: fstat failed");
+        warn("error: fstat failed");
         close(file);
-        return result;
+        return (string8){0};
     }
+
+
+    result = PushString(arena, sbuf.st_size);
 
     result.size = (u64)sbuf.st_size;
     if(result.size != 0)

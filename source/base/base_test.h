@@ -1,29 +1,10 @@
+// TODO(nasr): metaprogram that takes an expected output and generates a test for that specified 
+// function
+/* base library testing framework */
 #ifndef BASE_TEST_H
 #define BASE_TEST_H
 
-#define RED "\x1b[31m"
-#define GREEN "\x1b[32m"
-#define RESET "\x1b[0m"
-#define BLUE "\x1b[34m"
-
-#define LEN(s) (sizeof(s) - 1)
-
-internal void
-write_int(s32 num)
-{
-
-    if (num < 0)
-    {
-        write(STDERR_FILENO, "-", 1);
-        num = -num;
-    }
-    if (num >= 10)
-        write_int(num / 10);
-    char digit = '0' + (num % 10);
-
-    write(STDERR_FILENO, &digit, 1);
-}
-
+// helper macro
 #define show \
     do \
     { \
@@ -45,7 +26,7 @@ write_int(s32 num)
         } \
     }
 
-#define check(expr) \
+#define verify(expr) \
     { \
         if ((expr) != 0) \
         { \
@@ -60,15 +41,6 @@ write_int(s32 num)
             show; \
             write(STDERR_FILENO, RESET, LEN(RESET)); \
         } \
-    }
-
-#define checkpoint_output "<<CHECKPOINT>>\n"
-#define checkpoint_end_output "^^^^^^^^^^^^^^\n\n\n"
-#define checkpoint \
-    { \
-        write(STDERR_FILENO, BLUE checkpoint_output, LEN(BLUE checkpoint_output)); \
-        show; \
-        write(STDERR_FILENO, BLUE checkpoint_end_output, LEN(BLUE checkpoint_end_output)); \
     }
 
 #endif /* BASE_TEST_H */

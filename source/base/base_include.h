@@ -15,10 +15,11 @@
 #include "base_mem.h"
 #include "base_arena.h"
 #include "base_stack.h"
-#include "base_test.h"
 #include "base_string.h"
+
 #include "base_io.h"
-#include "base_os.h"
+#include "base_error.h"
+#include "base_test.h"
 
 #ifdef BASE_UNITY
 
@@ -26,4 +27,8 @@
 #include "base_stack.c"
 
 #endif
+
+#include "base_os.h"
+
+
 #endif

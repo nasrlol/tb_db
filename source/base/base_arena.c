@@ -110,7 +110,7 @@ arena_resize_align(mem_arena *arena, void *old_memory, u64 new_size, u64 old_siz
     }
     else
     {
-        check(0);
+        verify(0);
     }
     return NULL;
 }

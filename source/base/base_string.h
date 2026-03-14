@@ -1,17 +1,7 @@
 #ifndef BASE_STRING_H
 #define BASE_STRING_H
 
-#define StringLit(string) \
-    (string8){ .data = (u8 *)(string), .size = (sizeof(string) - 1) }
-
-#define PushString(arena, size) \
-    ({ \
-        string8 *result = PushStruct((arena), string8); \
-        result->data = PushArray((arena), u8, (size)); \
-        result->size = (u64)(size); \
-        result; \
-    })
-
+#define PushString(arena, count) (string8){ .data = (PushArrayZero(arena, u8, (count))), .size = (count) } 
 #define StringCast(data, size) (string8){(u8 *)(data), (u64)(size) } 
 #define StringPCast(data, size) (string8 *){(u8 *)(data), (u64)(size) } 
 

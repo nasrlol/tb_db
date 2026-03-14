@@ -32,4 +32,29 @@ print(const char *str)
 
 }
 
+internal void
+write_int(s32 num)
+{
+
+    if (num < 0)
+    {
+        write(STDERR_FILENO, "-", 1);
+        num = -num;
+    }
+    if (num >= 10)
+        write_int(num / 10);
+    char digit = '0' + (num % 10);
+
+    write(STDERR_FILENO, &digit, 1);
+}
+
+internal void
+write_string(s32 fd, const char *str)
+{
+    s32 len = 0;
+    while (str[len]) len++;
+    os_write(fd, str, len);
+}
+
+
 #endif /* BASE_IO_H */
