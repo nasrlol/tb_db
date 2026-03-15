@@ -1,3 +1,6 @@
+
+
+
 #define B_TREE_IMPLEMENTATION
 #define BASE_UNITY
 #include "base/base_include.h"
@@ -33,7 +36,6 @@ is_delimiter(u8 point)
 
 }
 
-
 #include "b_tree.h"
 #include "csv_reader.h"
 
@@ -44,13 +46,48 @@ struct query_token
     query_token  *next;
 };
 
+typedef struct query_token_list query_token_list;
+struct query_token_list
+{
+    query_token *start_token;
+    query_token *current_token;
+};
+
+read_only global_variable
+query_token nil_query_token =
+{
+    .lexeme = {.data = NULL, .size = 0},
+    .next = &nil_query_token
+};
+
+
+read_only global_variable
+query_token_list nil_query_token_list =
+{
+    .start_token = &nil_query_token,
+    .current_token = &nil_query_token,
+};
+
+internal b32
+is_nil_query_token(query_token *token)
+{
+    return (token == &nil_query_token) || (token == NULL);
+}
+
+internal b32
+is_nil_query_token_list(query_token *token)
+{
+    return (token == &nil_query_token) || (token == NULL);
+}
+
 
 // takes on line of the repl input
-internal query_token *
-query_tokenizer(mem_arena *arena, string8 *buffer)
+// return a reference to the passed list
+internal query_token_list *
+query_tokenizer(mem_arena *arena, string8 *buffer, query_token_list *list)
 {
-    query_token *tok = PushStruct(arena, query_token);
-    unused(tok);
+    b32 initialized = 0;
+    unused(initialized);
 
     for (u64 index = 0; index < buffer->size; ++index)
     {            
@@ -69,23 +106,44 @@ query_tokenizer(mem_arena *arena, string8 *buffer)
         // save the token
         // TODO(nasr): work on the string macros cuz no work
         {
+            query_token *new_token = PushStruct(arena, query_token);
+
+            //- initialize list
+            {
+                if(is_nil_query_token(list->start_token))
+                {
+                    list->start_token   = new_token;
+                    list->current_token = new_token; 
+                }
+                else 
+                {
+                    //- all we need to do - we dont track parents or what ever. this is a token stream not a tree
+                    list->current_token->next = new_token;
+                }
+            }
 
             s32 new_token_size = end - start;
 
-            tok->lexeme = PushString(arena, new_token_size);
-            tok->lexeme.data = &buffer->data[index]; 
-            tok->lexeme.size = new_token_size;
+            new_token->lexeme = PushString(arena, new_token_size);
+            new_token->lexeme.data = &buffer->data[index]; 
+            new_token->lexeme.size = new_token_size;
 
-            tok->next = tok;
+            list->current_token->next = new_token;
+
             start = index + 1;
         }
     }
 
-    return tok;
+    return list;
 }
 
 int main(int count, char **value)
 {
+
+#if 1
+    unused(nil_query_token_list);
+#endif
+
     if(count < 2) value[1] =  "./test/data.csv";
 
     local_persist b32 running = 1;
@@ -121,16 +179,21 @@ int main(int count, char **value)
                     lbuf_stringified.size  = sizeof(lbuf) - 1;
                 }
 
-                query_tokenizer(global_arena, &lbuf_stringified);
+                query_token_list *qtl = PushStruct(global_arena, query_token_list);
+
+                query_tokenizer(global_arena, &lbuf_stringified, qtl);
             }
 
             {
                 read_csv(buffer);
-                token *tokens = tokenize_csv(buffer, global_arena);
+
+                csv_token *tokens = tokenize_csv(buffer, global_arena);
 
                 assert_msg(tokens != NULL, "Tokens are NULL.");
 
-                b_tree *bt = parse_csv(global_arena, tokens);
+                csv_token_list *ctl = PushStruct(global_arena, csv_token_list);
+                b_tree *bt = parse_csv(global_arena, ctl);
+
                 b_tree_write(bt);
             }
 

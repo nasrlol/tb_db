@@ -1,15 +1,15 @@
 #ifndef ENGINE_LEXER_H
 #define ENGINE_LEXER_H
 
-typedef enum token_flags token_flags;
-enum token_flags 
+typedef enum csv_token_flags csv_token_flags;
+enum csv_token_flags
 {
     START_FL    = 1 << 1,
     END_FL      = 1 << 2,
 };
 
-typedef enum token_type token_type;
-enum token_type
+typedef enum csv_token_type csv_token_type;
+enum csv_token_type
 {
     // first 255 tokens  for ascii characters
     TOKEN_UNDEFINED = 255,
@@ -17,13 +17,13 @@ enum token_type
     TOKEN_VALUE,
 };
 
-typedef struct token token;
-struct token
+typedef struct csv_token csv_token;
+struct csv_token
 {
     string8 lexeme;
-    token_type type;
-    token_flags flags;
-    token *next;
+    csv_token_type type;
+    csv_token_flags flags;
+    csv_token *next;
 };
 
 // NOTE(nasr): i dont think im going to use this.
@@ -46,6 +46,33 @@ struct csv_table
     s32       row_count;
 };
 
+
+typedef struct csv_token_list csv_token_list;
+struct csv_token_list
+{
+    csv_token *start_token;
+    csv_token *end_token;
+
+};
+
+read_only global_variable
+csv_token nil_csv_token=
+{
+    .lexeme = {.data = NULL, .size =0},
+    .type   = (csv_token_type)0,
+    .flags  = 0,
+    .next   = &nil_csv_token,
+
+};
+
+read_only global_variable
+csv_token_list nil_csv_token_list =
+{
+    .start_token = &nil_csv_token,
+    .end_token   = &nil_csv_token,
+};
+
+
 read_only global_variable
 csv_row  nil_csv_row =
 {
@@ -67,14 +94,14 @@ csv_table nil_csv_table =
 // the lexer acts as a table builder from a csv  file
 // and parsing indivudal rows and columns
 // the next step would be building a the b-tree
-internal token *
+internal csv_token *
 tokenize_csv(string8 buffer, mem_arena *arena)
 {
     b32 FL = TRUE;
 
     if(buffer.size < 0) return NULL;
 
-    token *tok = PushStruct(arena, token);
+    csv_token *tok = PushStruct(arena, csv_token);
 
     // URGENT(nasr): segfaulting because memcpy of strring value doesnt  work dammit
     // NOPE ITS BEECAUSE WEE DONT LOAD CSV OR SOMTHING???
@@ -126,22 +153,30 @@ read_csv(string8 buffer)
 }
 
 internal b_tree *
-parse_csv(mem_arena *arena, token *tok)
+parse_csv(mem_arena *arena, csv_token_list *ctl)
 {
     b_tree *tree = PushStructZero(arena, b_tree);
     b_tree_create(arena, tree);
 
-    for (; tok != NULL; tok = tok->next)
+    //- TODO(nasr): check initizalization or something tomorrow
     {
-        // skip structural tokens, only index values
-        if (tok->type != TOKEN_VALUE)
+
+    }
+    // TODO(nasr): fix this logic tomorrow
+    csv_token *ct = PushStruct(arena, csv_token);
+
+    for (;ct != NULL; ct = ct->next)
+    {
+        // skip structural ctens, only index values
+        if (ct->type != TOKEN_VALUE)
         {
             continue;
         }
 
-        // NOTE(nasr): payload is the token itself so the caller can reach
+        // NOTE(nasr): payload is the cten itself so the caller can reach
         // row/col metadata without us having to copy it
-        b_tree_insert(arena, tree, tok->lexeme, (void *)tok);
+        // NOTE(nasr): heh why do we void cast again?
+        b_tree_insert(arena, tree, ct->lexeme, (void *)ct);
     }
 
     return tree;
