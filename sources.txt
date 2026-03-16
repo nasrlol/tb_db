@@ -10,3 +10,11 @@
 
 
  https://github.com/tidwall/btree.c/blob/master/btree.c
+
+ https://www.youtube.com/watch?v=TOb1tuEZ2X4&t=716s
+ - good explanations on insertion and searching
+
+ https://www.geeksforgeeks.org/dsa/insert-operation-in-b-tree/
+
+
+
