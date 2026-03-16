@@ -4,16 +4,29 @@
 
 // maximum height of the tree the lower the lower the lower amount
 // of disk reads which translates into faster?
-#define B_TREE_ORDER 4
+#if 0
+global_variable read_only s16 B_TREE_ORDER = 4;
+#endif
+#define B_TREE_ORDER  4
+
+//- NOTE(nasr): defining a key to improve sorting
+//  i think saying that a key is a combination of the column + row is a good way of appraoching this
+typedef struct key key;
+struct key
+{
+    string8 header;
+    s32     row;
+};
 
 typedef struct b_tree_node b_tree_node;
 struct b_tree_node
 {
-    // store the values
-    string8 keys[B_TREE_ORDER - 1];
+    // store the key values of the sub nodes? if they are leaves?
+    key keys[B_TREE_ORDER - 1];
     // TODO(nasr): replace with something more generic?
     // NOTE(nasr): cons of void * -> no type safety
     // is there a way to still have some sort of that?
+    // size not variable
     void *payload_per_key[B_TREE_ORDER - 1];
     b_tree_node *parent;
     // handle to store children faster than linked list
@@ -27,6 +40,10 @@ struct b_tree_node
     // s32 *refc;
     s32 key_count;
     b32 leaf;
+
+
+    // NOTE(nasr): do we hold the reference to the arena? or do we pass is it as a reference? 
+    // this could solve memory location issues?
 };
 
 typedef struct b_tree b_tree;
@@ -55,9 +72,17 @@ btree_node_alloc(mem_arena *arena)
 internal s32
 btree_node_find_pos(string8 value, b_tree_node *node)
 {
+    unused(value);
+    unused(node);
+
+#if 0
     s32 i = 0;
     for (; i < node->key_count && string8_cmp(node->keys[i], value) < 0; ++i);
     return i;
+#endif
+
+    return 0;
+
 }
 
 internal void
@@ -68,10 +93,15 @@ b_tree_create(mem_arena *arena, b_tree *tree)
     tree->root->key_count = 0;
 }
 
+
 // NOTE(nasr): nodes that get passed as parameters should've already been loaded into memory
 internal void *
 b_tree_search(b_tree_node *node, string8 key)
 {
+    unused(node);
+    unused(key);
+
+#if 0
     s32 i = btree_node_find_pos(key, node);
 
     if (i < node->key_count && string8_cmp(node->keys[i], key) == 0)
@@ -83,12 +113,20 @@ b_tree_search(b_tree_node *node, string8 key)
         return NULL;
     }
     return b_tree_search(node->children[i], key);
+#endif
+
+    return NULL;
 }
+
 
 // TODO(nasr): split node when key_count == B_TREE_ORDER - 1 (node is full)
 internal void
-b_tree_insert(mem_arena *arena, b_tree *tree, string8 key, void *payload)
+b_tree_insert(b_tree *tree, string8 key, void *payload)
 {
+    unused(tree);
+    unused(key);
+    unused(payload);
+#if 0
     b_tree_node *current_node = tree->root;
 
     if (current_node->leaf)
@@ -109,15 +147,18 @@ b_tree_insert(mem_arena *arena, b_tree *tree, string8 key, void *payload)
         }
         else {
             // TODO(nasr): creating a new branch / tree?
+            // make a seperate function for this
         }
     }
     // TODO(nasr): internal node case walk down then split on the way back up
+#endif
 }
 
 internal void
 b_tree_write(b_tree *bt)
 {
     // TODO(nasr): write the b_tree to disk
+    unused(bt);
 }
 
 #endif /* B_TREE_IMPLEMENTATION */

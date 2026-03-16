@@ -1,8 +1,7 @@
 BIN = build/engine
-SRC = source/engine.c
+SRC = source/tb_db.c
 CC = clang
-CFLAGS = -Wall -Wextra -Wfloat-equal -Wswitch-default -Wswitch-enum \
-         -Wno-unused-parameter -Wno-implicit-fallthrough -Wno-unused-function -g -Werror
+CFLAGS = -Wall -Wextra -Wpedantic  -Wno-unused-function -g -Werror
 
 $(BIN): $(SRC)
 	mkdir -p build

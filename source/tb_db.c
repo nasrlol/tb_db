@@ -1,6 +1,3 @@
-
-
-
 #define B_TREE_IMPLEMENTATION
 #define BASE_UNITY
 #include "base/base_include.h"
@@ -33,11 +30,10 @@ internal b32
 is_delimiter(u8 point)
 {
     return (point == ',');
-
 }
 
-#include "b_tree.h"
-#include "csv_reader.h"
+#include "b_tree_impl.h"
+#include "csv_decoder.h"
 
 typedef struct query_token query_token;
 struct query_token
@@ -80,7 +76,6 @@ is_nil_query_token_list(query_token *token)
     return (token == &nil_query_token) || (token == NULL);
 }
 
-
 // takes on line of the repl input
 // return a reference to the passed list
 internal query_token_list *
@@ -90,7 +85,7 @@ query_tokenizer(mem_arena *arena, string8 *buffer, query_token_list *list)
     unused(initialized);
 
     for (u64 index = 0; index < buffer->size; ++index)
-    {            
+    {
         u8 codepoint = buffer->data[index];
 
         if(codepoint == '\n' || codepoint == '\r') break;
@@ -98,10 +93,7 @@ query_tokenizer(mem_arena *arena, string8 *buffer, query_token_list *list)
         s32 start   = 0; 
         s32 end     = 0; 
 
-        if(is_whitespace(codepoint))
-        {
-            end = index; 
-        }
+        if(is_whitespace(codepoint)) end = index; 
 
         // save the token
         // TODO(nasr): work on the string macros cuz no work
@@ -185,18 +177,22 @@ int main(int count, char **value)
             }
 
             {
-                read_csv(buffer);
 
-                csv_token *tokens = tokenize_csv(buffer, global_arena);
+                // NOTE(nasr): the use of tables is required for tracking headers etc.
+                // i think we can optimize this away in the future but for now its fine
+                csv_table *table = PushStruct(global_arena, csv_table);
+
+                csv_token_list *token_list = PushStruct(global_arena, csv_token_list);
+
+                csv_token *tokens = tokenize_csv(buffer, global_arena, table, token_list);
 
                 assert_msg(tokens != NULL, "Tokens are NULL.");
 
                 csv_token_list *ctl = PushStruct(global_arena, csv_token_list);
-                b_tree *bt = parse_csv(global_arena, ctl);
+                b_tree *bt = parse_csv(global_arena, ctl, table);
 
                 b_tree_write(bt);
             }
-
 
             // NOTE(nasr): not sure on how to approach the b-tree and the  table format thing
             // we kind of want our table format i think? but i wouldnt be sure about the use case
