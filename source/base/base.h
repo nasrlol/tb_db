@@ -62,7 +62,7 @@ typedef double f64;
 
 typedef s32 b32;
 typedef s16 b16;
-typedef u8  b8;
+typedef s8  b8;
 
 typedef uintptr_t umm;
 typedef intptr_t  smm;
