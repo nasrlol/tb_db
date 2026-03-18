@@ -157,7 +157,7 @@ tokenize_csv(string8 buffer, mem_arena *arena, csv_table *table, csv_token_list 
     unused(token_list);
     b32 finding_headers = TRUE;
 
-    if(buffer.size < 0) return NULL;
+    if(buffer.size == 0) return NULL;
 
     csv_token *tok = PushStruct(arena, csv_token);
 
@@ -238,11 +238,10 @@ tokenize_csv(string8 buffer, mem_arena *arena, csv_table *table, csv_token_list 
 }
 
 //- NOTE(nasr): I don't know why we are still using that dumb table but we'll remove it in the future
-internal b_tree *
+internal btree *
 parse_csv(mem_arena *arena, csv_token_list *ctl, csv_table *table)
 {
-    b_tree *tree = PushStructZero(arena, b_tree);
-    b_tree_create(arena, tree);
+    btree *tree = PushStructZero(arena, btree);
 
     // iterate over the token list while the token is not nil
     for (csv_token *ct = ctl->start_token; !is_nil_csv_token(ct); ct = ct->next_token)
@@ -266,7 +265,6 @@ parse_csv(mem_arena *arena, csv_token_list *ctl, csv_table *table)
                 {
 
                 }
-
             }
         }
 
@@ -281,7 +279,14 @@ parse_csv(mem_arena *arena, csv_token_list *ctl, csv_table *table)
         // NOTE(nasr): payload is the cten itself so the caller can reach
         // row/col metadata without us having to copy it
         // NOTE(nasr): heh why do we void cast again?
-        b_tree_insert(tree, ct->lexeme, (void *)ct);
+
+        key k = {
+            .header_index =  1,
+            .row_index    =  1,
+        };
+
+        // btree_insert(arena, tree, (key)ct->lexeme, (void *)ct);
+        btree_insert(arena, tree, k, (void *)ct);
     }
 
     return tree;

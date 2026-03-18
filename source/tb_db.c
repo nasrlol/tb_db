@@ -1,4 +1,4 @@
-#define B_TREE_IMPLEMENTATION
+#define BTREE_IMPLEMENTATION
 #define BASE_UNITY
 #include "base/base_include.h"
 
@@ -32,7 +32,7 @@ is_delimiter(u8 point)
     return (point == ',');
 }
 
-#include "b_tree_impl.h"
+#include "btree_impl.h"
 #include "csv_decoder.h"
 
 typedef struct query_token query_token;
@@ -162,6 +162,7 @@ int main(int count, char **value)
                     print("error reading from stdin");
                 }
 
+
                 // TODO(nasr): extract this later in the future and make a string copy function/macro
                 // @params (s32 lbuf_size , string8 lbuf_stringified)
                 s32 lbuf_size             = sizeof(lbuf) - 1;
@@ -189,9 +190,9 @@ int main(int count, char **value)
                 assert_msg(tokens != NULL, "Tokens are NULL.");
 
                 csv_token_list *ctl = PushStruct(global_arena, csv_token_list);
-                b_tree *bt = parse_csv(global_arena, ctl, table);
+                btree *bt = parse_csv(global_arena, ctl, table);
 
-                b_tree_write(bt);
+                btree_write(bt);
             }
 
             // NOTE(nasr): not sure on how to approach the b-tree and the  table format thing
