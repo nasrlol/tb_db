@@ -131,73 +131,64 @@ query_tokenizer(mem_arena *arena, string8 *buffer, query_token_list *list)
 
 int main(int count, char **value)
 {
-
 #if 1
     unused(nil_query_token_list);
 #endif
 
-    if(count < 2) value[1] =  "./test/data.csv";
+    if(count < 2) value[1] = "./test/data.csv";
 
     local_persist b32 running = 1;
 
-    mem_arena *global_arena = arena_create(MiB(30));
-
-    // NOTE(nasr): see note down below
-    // csv_table *global_table = PushStruct(global_arena, csv_table);
+    mem_arena *global_arena = arena_create(GiB(1));
 
     string8 buffer = load_file(global_arena, value[1]);
+
+    // NOTE(nasr): the use of tables is required for tracking headers etc.
+    // i think we can optimize this away in the future but for now its fine
+    csv_table      *table      = PushStructZero(global_arena, csv_table);
+    csv_token_list *token_list = PushStructZero(global_arena, csv_token_list);
+
+    token_list->start_token = &nil_csv_token; 
+    token_list->end_token   = &nil_csv_token;   
+
+    csv_token *tokens = tokenize_csv(buffer, global_arena, table, token_list);
+    assert_msg(tokens != NULL, "tokens are null");
+
+    // NOTE(nasr): token_list is now populated — pass it directly, not a fresh empty list
+    btree *bt = parse_csv(global_arena, token_list, table);
 
     print("\nDatabase Engine\n");
 
     for(;;)
     {
-        if (running)
+        if(running)
         {
+            u8  *lbuf     = PushArray(global_arena, u8, 256);
+            s32  err      = os_read(STDIN_FD, lbuf, 256);
+
+            if(err < 0)
             {
-                u8 *lbuf = PushArray(global_arena, u8, 256);
-                s32 err = os_read(STDIN_FD, lbuf, 256);
-
-                if(err < 0)
-                {
-                    print("error reading from stdin");
-                }
-
-
-                // TODO(nasr): extract this later in the future and make a string copy function/macro
-                // @params (s32 lbuf_size , string8 lbuf_stringified)
-                s32 lbuf_size             = sizeof(lbuf) - 1;
-                string8 lbuf_stringified  = PushString(global_arena, lbuf_size);
-                {
-                    memcpy(lbuf_stringified.data, lbuf, lbuf_size);
-                    lbuf_stringified.size  = sizeof(lbuf) - 1;
-                }
-
-                query_token_list *qtl = PushStruct(global_arena, query_token_list);
-
-                query_tokenizer(global_arena, &lbuf_stringified, qtl);
+                print("error reading from stdin");
             }
 
+            // TODO(nasr): extract this later in the future and make a string copy function/macro
+            // @params (s32 lbuf_size, string8 lbuf_stringified)
+            // NOTE(nasr): use err (bytes read) not sizeof(lbuf*) — sizeof a pointer is always 8
+            s32     lbuf_size       = err;
+            string8 lbuf_stringified = PushString(global_arena, lbuf_size);
             {
-
-                // NOTE(nasr): the use of tables is required for tracking headers etc.
-                // i think we can optimize this away in the future but for now its fine
-                csv_table *table = PushStruct(global_arena, csv_table);
-
-                csv_token_list *token_list = PushStruct(global_arena, csv_token_list);
-
-                csv_token *tokens = tokenize_csv(buffer, global_arena, table, token_list);
-
-                assert_msg(tokens != NULL, "Tokens are NULL.");
-
-                csv_token_list *ctl = PushStruct(global_arena, csv_token_list);
-                btree *bt = parse_csv(global_arena, ctl, table);
-
-                btree_write(bt);
+                memcpy(lbuf_stringified.data, lbuf, lbuf_size);
+                lbuf_stringified.size = lbuf_size;
             }
 
-            // NOTE(nasr): not sure on how to approach the b-tree and the  table format thing
-            // we kind of want our table format i think? but i wouldnt be sure about the use case
-            // so we stick to the regular b_tree for now. commenting out the tables.
+            query_token_list *qtl = PushStructZero(global_arena, query_token_list);
+
+
+            query_tokenizer(global_arena, &lbuf_stringified, qtl);
+
+            // TODO(nasr): dispatch qtl against bt here
+
+            unused(bt);
 
             sleep(1);
         }
