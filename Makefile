@@ -1,5 +1,5 @@
-BIN = build/engine
-SRC = source/tb_db.c
+BIN = build/tb_db
+SRC = source/tb_db/tb_db.c
 
 # CC = gcc
 CC = clang
