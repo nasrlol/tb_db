@@ -16,7 +16,7 @@
 #if 0
 global_variable read_only s16 btree_ORDER = 4;
 #endif
-#define BTREE_ORDER  4
+#define BTREE_ORDER  2048
 
 //- NOTE(nasr): defining a key to improve sorting
 //  i think saying that a key is a combination of the column + row is a good way of appraoching this
@@ -50,7 +50,7 @@ struct btree_node
     b32 leaf;
 
 
-    // NOTE(nasr): do we hold the reference to the arena? or do we pass is it as a reference? 
+    // NOTE(nasr): do we hold the reference to the arena? or do we pass is it as a reference?
     // this could solve memory location issues?
 };
 
@@ -73,13 +73,13 @@ struct btree
 internal b32
 is_nil_btree_node(btree_node *node)
 {
-    // NOTE(nasr): looks like a useless function but could be usefull when we implement a nil_btree_node 
+    // NOTE(nasr): looks like a useless function but could be usefull when we implement a nil_btree_node
     return (node == NULL);
 }
 
 // TODO(nasr): 1. splitting the tree when getting too big? (horizontally) 2. joining trees?
 
-internal b8 
+internal b8
 key_compare(key destination_key, key source_key)
 {
     s32 source_index      = source_key.header_index      + source_key.row_index;
@@ -127,7 +127,7 @@ btree_search(btree_node *node, key key)
 internal void
 btree_insert(mem_arena *arena, btree *tree, key key, void *payload)
 {
-    if(is_nil_btree_node(tree->root)) 
+    if(is_nil_btree_node(tree->root))
     {
         tree->root = PushStructZero(arena, btree_node);
         tree->root->leaf = 1;
@@ -139,8 +139,15 @@ btree_insert(mem_arena *arena, btree *tree, key key, void *payload)
     if (current_node->leaf)
     {
         // find the insertion position and shift keys right to make room
-        //- after: but what is this. we are expecting a new key.but we are looking for 
+        //- after: but what is this. we are expecting a new key.but we are looking for
         //- its position in the tree is useless because it's non existent
+
+        // break early before we cant
+        if(current_node->key_count >= (BTREE_ORDER - 1))
+        {
+            return;
+        }
+
 
         s32 i = btree_find_ipos(key, current_node);
 
@@ -153,10 +160,11 @@ btree_insert(mem_arena *arena, btree *tree, key key, void *payload)
         current_node->keys[i]            = key;
         current_node->payload_per_key[i] = payload;
 
-        if(current_node->key_count < (BTREE_ORDER - 1))
-        {
-            current_node->key_count += 1;
-        }
+        current_node->key_count += 1;
+
+
+// TODO(nasr): fix the splitting logic
+#if 0
         else {
             // TODO(nasr): creating a new branch / tree?
             // make a seperate function for this
@@ -173,8 +181,9 @@ btree_insert(mem_arena *arena, btree *tree, key key, void *payload)
                 current_node->parent->key_count = updated_keycount_p;
             }
         }
+
+#endif
     }
-    // TODO(nasr): internal node case walk down then split on the way back up
 }
 
 
@@ -188,7 +197,7 @@ btree_write(btree *bt)
 
     for(btree_node *bt = PushStruct(arena); root->next; next = root;)
     {
-        
+
     }
 
     temp_arena_end(temp);
